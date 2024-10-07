@@ -8,7 +8,7 @@ This testbed is based on the DBx1000 system, whose concurrency control scalabili
     Staring into the Abyss: An Evaluation of Concurrency Control with One Thousand Cores
     Xiangyao Yu, George Bezerra, Andrew Pavlo, Srinivas Devadas, Michael Stonebraker
     http://voltdb.com/downloads/datasheets_collateral/vdb_whitepaper_staring_into_the_abyss.pdf
-    
+
 Setup
 ------------
 DDBMS has three dependences that need to be installed:
@@ -17,7 +17,7 @@ DDBMS has three dependences that need to be installed:
 * [jemalloc](https://github.com/jemalloc/jemalloc/releases/tag/4.0.3)
 * [nanomsg](https://github.com/nanomsg/nanomsg/releases/tag/0.6-beta)
 
-To be able to make the code successfully there needs to be a file named obj. Run 
+To be able to make the code successfully there needs to be a file named obj. Run
 
     mkdir obj
 
@@ -31,43 +31,45 @@ To build the database.
 Configuration
 -------------
 
-DBMS configurations can be changed in the config.h file. Please refer to README for the meaning of each configuration. Here we only list several most important ones. 
+DBMS configurations can be changed in the config.h file. Please refer to README for the meaning of each configuration. Here we only list several most important ones.
 
     NODE_CNT          : Number of server nodes in the database
     THREAD_CNT        : Number of worker threads running per server
     WORKLOAD          : Supported workloads include YCSB and TPCC
-    CC_ALG            : Concurrency control algorithm. Six algorithms are supported 
-                        (NO_WAIT, WAIT_DIE, TIMESTAMP, MVCC, OCC, CALVIN) 
+    CC_ALG            : Concurrency control algorithm. Six algorithms are supported
+                        (NO_WAIT, WAIT_DIE, TIMESTAMP, MVCC, OCC, CALVIN)
     MAX_TXN_IN_FLIGHT  : Maximum number of active transactions at each server at a given time
     DONE_TIMER        : Amount of time to run experiment
-                        
-Configurations can also be specified as command argument at runtime. Run the following command for a full list of program argument. 
-    
+
+Configurations can also be specified as command argument at runtime. Run the following command for a full list of program argument.
+
     ./rundb -h
 
 Run
 ---
 
-The DBMS can be run with 
+Create a file called ifconfig.txt with IP addresses for the servers and clients, one per line.
+
+The DBMS can be run with
 
     ./rundb -nid[N]
     ./runcl -nid[M]
 
 where N and M are the ID of a server and client, respectively
 
-For example, if you are running with a `THREAD_CNT` of 4 you would run 
+For example, if you are running with a `THREAD_CNT` of 4 you would run
 
     ./rundb -nid0
     ./rundb -nid1
     ./runcl -nid2
     ./runcl -nid3
 
-There is also the option to run scripts. From the scripts directory run 
-    
+There is also the option to run scripts. From the scripts directory run
+
     python3 run_experiments -e [experiment]
 
 * List of available experiments can be found [here](https://github.com/mitdbg/deneva/blob/master/scripts/experiments.py)
 
-After running an experiment, the results can be plotted by running 
+After running an experiment, the results can be plotted by running
 
     python3 plot.py [experiment]
