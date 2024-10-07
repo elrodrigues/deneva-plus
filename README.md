@@ -17,7 +17,7 @@ Deneva has three dependencies that need to be installed:
 * [jemalloc](https://github.com/jemalloc/jemalloc/releases/tag/5.3.0)
 * [nanomsg](https://github.com/nanomsg/nanomsg/releases/tag/1.2.1)
 
-These have been included as submodules that can be pulled when you run
+You will need to install the Boost library through your package manager, while the two other dependencies have been included as submodules that can be pulled when you run
 
     git clone --recurse-submodules <repo-url>
 
