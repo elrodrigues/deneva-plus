@@ -5,3 +5,4 @@ figs*
 *ifconfig.txt
 rundb
 runcl
+obj/

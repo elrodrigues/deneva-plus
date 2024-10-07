@@ -23,8 +23,8 @@
 #ifndef NN_HPP_INCLUDED
 #define NN_HPP_INCLUDED
 
-#include <nanomsg/nn.h>
-#include <nanomsg/tcp.h>
+#include "nanomsg/src/nn.h"
+#include "nanomsg/src/tcp.h"
 
 #include <cassert>
 #include <cstring>
@@ -201,5 +201,3 @@ namespace nn
 #undef nn_slow
 
 #endif
-
-

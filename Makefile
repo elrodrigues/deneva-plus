@@ -3,7 +3,7 @@ CFLAGS=-g -gdwarf-3 -std=c++11
 #CFLAGS=-Wall -g -gdwarf-3 -std=c++0x
 #CFLAGS += -fsanitize=address -fno-omit-frame-pointer
 JEMALLOC=./jemalloc
-NNMSG=./nanomsg
+NNMSG=./nanomsg/build
 
 .SUFFIXES: .o .cpp .h
 
@@ -14,6 +14,7 @@ CFLAGS += $(DEPS) -D NOGRAPHITE=1 -Wno-sizeof-pointer-memaccess
 LDFLAGS = -L. -L$(NNMSG) -L$(JEMALLOC)/lib -Wl,-rpath,$(JEMALLOC)/lib -pthread -gdwarf-3 -lrt -std=c++11
 #LDFLAGS = -Wall -L. -L$(NNMSG) -L$(JEMALLOC)/lib -Wl,-rpath,$(JEMALLOC)/lib -pthread -gdwarf-3 -lrt -std=c++0x
 #LDFLAGS = -Wall -L. -L$(NNMSG) -L$(JEMALLOC)/lib -Wl,-rpath,$(JEMALLOC)/lib -pthread -gdwarf-3 -lrt -std=c++11
+#LDFLAGS += -Xlinker --verbose # adds verbose flag to GNU linker ld
 LDFLAGS += $(CFLAGS)
 LIBS = -lnanomsg -lanl -ljemalloc
 
