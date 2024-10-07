@@ -11,11 +11,23 @@ This testbed is based on the DBx1000 system, whose concurrency control scalabili
 
 Setup
 ------------
-DDBMS has three dependences that need to be installed:
+Deneva has three dependencies that need to be installed:
 
 * [Boost](https://www.boost.org/)
-* [jemalloc](https://github.com/jemalloc/jemalloc/releases/tag/4.0.3)
-* [nanomsg](https://github.com/nanomsg/nanomsg/releases/tag/0.6-beta)
+* [jemalloc](https://github.com/jemalloc/jemalloc/releases/tag/5.3.0)
+* [nanomsg](https://github.com/nanomsg/nanomsg/releases/tag/1.2.1)
+
+These have been included as submodules that can be pulled when you run
+
+    git clone --recurse-submodules <repo-url>
+
+You can build `jemalloc` without installing by running
+
+    ./autogen.sh --with-jemalloc-prefix="je_"
+    make -j
+
+See `nanomsg` README on how to build it. You do not need to install it
+since Deneva searches for the shared object locally.
 
 To be able to make the code successfully there needs to be a file named obj. Run
 
