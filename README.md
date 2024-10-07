@@ -1,7 +1,7 @@
-DDBMS
+Deneva Plus
 =======
 
-DDBMS is a testbed of an OLTP distributed database management system (DBMS). It supports 6 concurrency control algorithms.
+Deneva is a testbed of an OLTP distributed database management system (DBMS). It supports 6 concurrency control algorithms.
 
 This testbed is based on the DBx1000 system, whose concurrency control scalability study can be found in the following paper:
 
