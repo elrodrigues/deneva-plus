@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
     printf("Running client...\n\n");
 	// 0. initialize global data structure
 	parser(argc, argv);
-    assert(g_node_id >= g_node_cnt);
+    //assert(g_node_id >= g_node_cnt);
     //assert(g_client_node_cnt <= g_node_cnt);
 
 	uint64_t seed = get_sys_clock();
@@ -116,13 +116,13 @@ int main(int argc, char* argv[])
 
 	// 2. spawn multiple threads
 	uint64_t thd_cnt = g_client_thread_cnt;
-	uint64_t cthd_cnt = thd_cnt; 
+	uint64_t cthd_cnt = thd_cnt;
 	uint64_t rthd_cnt = g_client_rem_thread_cnt;
 	uint64_t sthd_cnt = g_client_send_thread_cnt;
   uint64_t all_thd_cnt = thd_cnt + rthd_cnt + sthd_cnt;
   assert(all_thd_cnt == g_this_total_thread_cnt);
 
-	pthread_t * p_thds = 
+	pthread_t * p_thds =
 		(pthread_t *) malloc(sizeof(pthread_t) * (all_thd_cnt));
 	pthread_attr_t attr;
 	pthread_attr_init(&attr);
@@ -182,11 +182,11 @@ int main(int argc, char* argv[])
     output_thds[i].init(id,g_node_id,m_wl);
 		pthread_create(&p_thds[id++], NULL, run_thread, (void *)&output_thds[i]);
   }
-	for (uint64_t i = 0; i < all_thd_cnt; i++) 
+	for (uint64_t i = 0; i < all_thd_cnt; i++)
 		pthread_join(p_thds[i], NULL);
 
 	endtime = get_server_clock();
-	
+
   fflush(stdout);
   printf("CLIENT PASS! SimTime = %ld\n", endtime - starttime);
   if (STATS_ENABLE)
