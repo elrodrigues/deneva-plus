@@ -9,6 +9,12 @@ This testbed is based on the DBx1000 system, whose concurrency control scalabili
     Xiangyao Yu, George Bezerra, Andrew Pavlo, Srinivas Devadas, Michael Stonebraker
     http://voltdb.com/downloads/datasheets_collateral/vdb_whitepaper_staring_into_the_abyss.pdf
 
+This project, "Deneva Plus", aims to add more features and concurrency control algorithms to the Deneva testbed. Details
+about Deneva can be found in the original paper:
+
+    An Evaluation of Distributed Concurrency Control
+    Rachael Harding, Dana Van Aken, Andrew Pavlo, Michael Stonebraker
+    https://vldb.org/pvldb/vol10/p553-harding.pdf
 Setup
 ------------
 Deneva has three dependencies that need to be installed:
@@ -19,17 +25,24 @@ Deneva has three dependencies that need to be installed:
 
 You will need to install the Boost library through your package manager, while the two other dependencies have been included as submodules that can be pulled when you run
 
-    git clone --recurse-submodules <repo-url>
+    git clone --recurse-submodules https://github.com/elrodrigues/deneva-plus.git
 
-You can build `jemalloc` without installing by running
+You can build `jemalloc` without installing by running the following inside `jemalloc/`
 
     ./autogen.sh --with-jemalloc-prefix="je_"
     make -j
 
 See `nanomsg` README on how to build it. You do not need to install it
-since Deneva searches for the shared object locally.
+since Deneva searches for the shared object locally when building. However,
+you may need to copy or move `libnanomsg.so` and its soft links to a path
+in your shared library cache like `/usr/lib`, `/usr/lib64`, or
+`/usr/local/lib`. You may also need to refresh the runtime shared library
+cache by running
 
-To be able to make the code successfully there needs to be a file named obj. Run
+    sudo ldconfig
+
+To be able to make the code successfully there needs to be a directory named obj.
+Run this in the project root
 
     mkdir obj
 
@@ -43,7 +56,7 @@ To build the database.
 Configuration
 -------------
 
-DBMS configurations can be changed in the config.h file. Please refer to README for the meaning of each configuration. Here we only list several most important ones.
+DBMS configurations can be changed in the `config.h` file. Please refer to README for the meaning of each configuration. Here we only list several most important ones.
 
     NODE_CNT          : Number of server nodes in the database
     THREAD_CNT        : Number of worker threads running per server
