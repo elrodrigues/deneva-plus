@@ -23,8 +23,9 @@
 #ifndef NN_HPP_INCLUDED
 #define NN_HPP_INCLUDED
 
-#include "nanomsg/src/nn.h"
-#include "nanomsg/src/tcp.h"
+// nanomsg includes
+#include "nn.h"
+#include "tcp.h"
 
 #include <cassert>
 #include <cstring>
