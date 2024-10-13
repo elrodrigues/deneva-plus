@@ -22,6 +22,7 @@
 #include "tpcc_query.h"
 #include "query.h"
 #include "message.h"
+#include <cerrno>
 
 
 #define MAX_IFADDR_LEN 20 // max # of characters in name of address
@@ -233,9 +234,8 @@ void Transport::send_msg(uint64_t send_thread_id, uint64_t dest_node_id, void * 
 
   int rc = -1;
   while(rc < 0 && (!simulation->is_setup_done() || (simulation->is_setup_done() && !simulation->is_done()))) {
-    DEBUG("simulation->is_setup_done(): %d\n", simulation->is_setup_done());
-    DEBUG("simulation->is_done(): %d\n", simulation->is_done());
     rc = socket->sock.send(&buf,NN_MSG,NN_DONTWAIT);
+    DEBUG("sock.send() rc: %d, expected: %d", rc, EAGAIN);
   }
   //nn_freemsg(sbuf);
   DEBUG("%ld Batch of %d bytes sent to node %ld\n",send_thread_id,size,dest_node_id);
