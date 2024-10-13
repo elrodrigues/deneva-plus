@@ -41,12 +41,12 @@ void Thread::heartbeat() {
 }
 
 void Thread::send_init_done_to_all_nodes() {
-		for(uint64_t i = 0; i < g_total_node_cnt; i++) {
-			if(i != g_node_id) {
-        printf("Send INIT_DONE to %ld\n",i);
-        msg_queue.enqueue(get_thd_id(),Message::create_message(INIT_DONE),i);
-			}
+	for(uint64_t i = 0; i < g_total_node_cnt; i++) {
+		if(i != g_node_id) {
+            printf("Send INIT_DONE to %ld\n",i);
+            msg_queue.enqueue(get_thd_id(),Message::create_message(INIT_DONE),i);
 		}
+	}
 }
 
 void Thread::init(uint64_t thd_id, uint64_t node_id, Workload * workload) {
@@ -92,7 +92,7 @@ void Thread::progress_stats() {
 #endif
       if (now_time - prog_time >= g_prog_timer) {
         prog_time = now_time;
-        SET_STATS(get_thd_id(), total_runtime, prog_time - simulation->run_starttime); 
+        SET_STATS(get_thd_id(), total_runtime, prog_time - simulation->run_starttime);
 
         if(ISCLIENT) {
           stats.print_client(true);

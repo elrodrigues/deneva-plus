@@ -15,6 +15,7 @@
 */
 
 #include "global.h"
+#include "helper.h"
 #include "manager.h"
 #include "transport.h"
 #include "nn.hpp"
@@ -232,7 +233,9 @@ void Transport::send_msg(uint64_t send_thread_id, uint64_t dest_node_id, void * 
 
   int rc = -1;
   while(rc < 0 && (!simulation->is_setup_done() || (simulation->is_setup_done() && !simulation->is_done()))) {
-    rc= socket->sock.send(&buf,NN_MSG,NN_DONTWAIT);
+    DEBUG("simulation->is_setup_done(): %d", simulation->is_setup_done());
+    DEBUG("simulation->is_done(): %d", simulation->is_done());
+    rc = socket->sock.send(&buf,NN_MSG,NN_DONTWAIT);
   }
   //nn_freemsg(sbuf);
   DEBUG("%ld Batch of %d bytes sent to node %ld\n",send_thread_id,size,dest_node_id);
@@ -261,8 +264,8 @@ std::vector<Message*> * Transport::recv_msg(uint64_t thd_id) {
   }
   assert(ctr < recv_sockets.size());
   uint64_t start_ctr = ctr;
-  
-	
+
+
   while(bytes <= 0 && (!simulation->is_setup_done() || (simulation->is_setup_done() && !simulation->is_done()))) {
     Socket * socket = recv_sockets[ctr];
 		bytes = socket->sock.recv(&buf, NN_MSG, NN_DONTWAIT);
@@ -277,7 +280,7 @@ std::vector<Message*> * Transport::recv_msg(uint64_t thd_id) {
 
 		if(bytes <= 0 && errno != 11) {
 		  printf("Recv Error %d %s\n",errno,strerror(errno));
-			nn::freemsg(buf);	
+			nn::freemsg(buf);
 		}
 
 		if(bytes>0)
@@ -297,7 +300,7 @@ std::vector<Message*> * Transport::recv_msg(uint64_t thd_id) {
   msgs = Message::create_messages((char*)buf);
   DEBUG("Batch of %d bytes recv from node %ld; Time: %f\n",bytes,msgs->front()->return_node_id,simulation->seconds_from_start(get_sys_clock()));
 
-	nn::freemsg(buf);	
+	nn::freemsg(buf);
 
 	INC_STATS(thd_id,msg_unpack_time,get_sys_clock()-starttime);
   return msgs;
@@ -329,7 +332,7 @@ uint64_t Transport::simple_recv_msg() {
 		bytes = socket->sock.recv(&buf, NN_MSG, NN_DONTWAIT);
     if(bytes <= 0 ) {
       if(errno != 11)
-        nn::freemsg(buf);	
+        nn::freemsg(buf);
       return 0;
     }
 
@@ -337,8 +340,7 @@ uint64_t Transport::simple_recv_msg() {
 	memcpy(&time,&((char*)buf)[0],sizeof(ts_t));
 	//printf("%d bytes, %f s\n",bytes,((float)(get_sys_clock()-time)) / BILLION);
 
-	nn::freemsg(buf);	
+	nn::freemsg(buf);
 	return bytes;
 }
 */
-
