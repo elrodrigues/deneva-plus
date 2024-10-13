@@ -28,6 +28,7 @@
 #include "tcp.h"
 
 #include <cassert>
+#include <cstddef>
 #include <cstring>
 #include <algorithm>
 #include <exception>
@@ -147,6 +148,16 @@ namespace nn
                     throw nn::exception ();
                 return -1;
             }
+            return rc;
+        }
+
+        inline int send_blocked(const void *buf, size_t len, int flags)
+        {
+            int rc = nn_send (s, buf, len, flags);
+            if (nn_slow (rc < 0)) {
+                return -1;
+            }
+
             return rc;
         }
 
