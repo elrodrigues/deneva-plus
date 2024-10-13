@@ -151,16 +151,6 @@ namespace nn
             return rc;
         }
 
-        inline int send_blocked(const void *buf, size_t len, int flags)
-        {
-            int rc = nn_send (s, buf, len, flags);
-            if (nn_slow (rc < 0)) {
-                return -1;
-            }
-
-            return rc;
-        }
-
         inline int recv (void *buf, size_t len, int flags)
         {
             int rc = nn_recv (s, buf, len, flags);
