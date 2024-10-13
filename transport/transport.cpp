@@ -233,8 +233,8 @@ void Transport::send_msg(uint64_t send_thread_id, uint64_t dest_node_id, void * 
 
   int rc = -1;
   while(rc < 0 && (!simulation->is_setup_done() || (simulation->is_setup_done() && !simulation->is_done()))) {
-    DEBUG("simulation->is_setup_done(): %d", simulation->is_setup_done());
-    DEBUG("simulation->is_done(): %d", simulation->is_done());
+    DEBUG("simulation->is_setup_done(): %d\n", simulation->is_setup_done());
+    DEBUG("simulation->is_done(): %d\n", simulation->is_done());
     rc = socket->sock.send(&buf,NN_MSG,NN_DONTWAIT);
   }
   //nn_freemsg(sbuf);
