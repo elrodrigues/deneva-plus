@@ -1447,7 +1447,10 @@ void Stats::init(uint64_t thread_cnt) {
   totals->clear();
 
   if (ENERGY_ENABLE) {
-    raplcap_init(&rc);
+    DEBUG("Attempting to initialize raplcap context.\n");
+    if (raplcap_init(&rc)) {
+        perror("raplcap_init");
+    }
 
     // typically want to measure Power Plane 0 (PP0)
     // but will measure package for now.
