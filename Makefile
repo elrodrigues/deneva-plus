@@ -5,19 +5,20 @@ CFLAGS=-g -gdwarf-3 -std=c++11
 JEMALLOC=./jemalloc
 NNMSG=./nanomsg
 RPLCAP=./raplcap
+RPLCAPTYPE=powercap
 
 .SUFFIXES: .o .cpp .h
 
 SRC_DIRS = ./ ./benchmarks/ ./client/ ./concurrency_control/ ./storage/ ./transport/ ./system/ ./statistics/#./unit_tests/
-DEPS = -I. -I./boost_1_79_0 -I./benchmarks -I./client/ -I./concurrency_control -I./storage -I./transport -I./system -I./statistics -I$(JEMALLOC)/include -I$(NNMSG)/src -I$(RPLCAP)/inc -I$(RPLCAP)/powercap #-I./unit_tests
+DEPS = -I. -I./boost_1_79_0 -I./benchmarks -I./client/ -I./concurrency_control -I./storage -I./transport -I./system -I./statistics -I$(JEMALLOC)/include -I$(NNMSG)/src -I$(RPLCAP)/inc -I$(RPLCAP)/$(RPLCAPTYPE) #-I./unit_tests
 
 CFLAGS += $(DEPS) -D NOGRAPHITE=1 -Wno-sizeof-pointer-memaccess
-LDFLAGS = -L. -L$(NNMSG)/build -L$(JEMALLOC)/lib -L$(RPLCAP)/_build/powercap -Wl,-rpath,$(JEMALLOC)/lib -pthread -gdwarf-3 -lrt -std=c++11
+LDFLAGS = -L. -L$(NNMSG)/build -L$(JEMALLOC)/lib -L$(RPLCAP)/_build/$(RPLCAPTYPE) -Wl,-rpath,$(JEMALLOC)/lib -pthread -gdwarf-3 -lrt -std=c++11
 #LDFLAGS = -Wall -L. -L$(NNMSG) -L$(JEMALLOC)/lib -Wl,-rpath,$(JEMALLOC)/lib -pthread -gdwarf-3 -lrt -std=c++0x
 #LDFLAGS = -Wall -L. -L$(NNMSG) -L$(JEMALLOC)/lib -Wl,-rpath,$(JEMALLOC)/lib -pthread -gdwarf-3 -lrt -std=c++11
 #LDFLAGS += -Xlinker --verbose # adds verbose flag to GNU linker ld
 LDFLAGS += $(CFLAGS)
-LIBS = -lnanomsg -lanl -ljemalloc -lraplcap-powercap
+LIBS = -lnanomsg -lanl -ljemalloc -lraplcap-$(RPLCAPTYPE)
 
 DB_MAINS = ./client/client_main.cpp ./system/sequencer_main.cpp ./unit_tests/unit_main.cpp
 CL_MAINS = ./system/main.cpp ./system/sequencer_main.cpp ./unit_tests/unit_main.cpp

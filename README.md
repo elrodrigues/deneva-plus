@@ -17,11 +17,15 @@ about Deneva can be found in the original paper:
     https://vldb.org/pvldb/vol10/p553-harding.pdf
 Setup
 ------------
-Deneva has three dependencies that need to be installed:
+Deneva has three required dependencies that need to be installed:
 
 * [Boost](https://www.boost.org/)
 * [jemalloc](https://github.com/jemalloc/jemalloc/releases/tag/5.3.0)
 * [nanomsg](https://github.com/nanomsg/nanomsg/releases/tag/1.2.1)
+
+If you'd like to measure energy consumption too, you will need the following optional dependencies (INTEL ONLY):
+* [powercap](https://github.com/powercap/powercap)
+* [raplcap](https://github.com/powercap/raplcap)
 
 You will need to install the Boost library through your package manager, while the two other dependencies have been included as submodules that can be pulled when you run
 
@@ -31,6 +35,23 @@ You can build `jemalloc` without installing by running the following inside `jem
 
     ./autogen.sh --with-jemalloc-prefix="je_"
     make -j
+
+See `powercap` README on how to build and install it. Since this Deneva implementation
+uses the powercap version of `raplcap`, you will need to install `powercap` too on your
+target system and have the `intel_rapl_msr` kernel module loaded.
+
+See `raplcap` README on how to build it, with the following exception: instead of just running `cmake ..` ,
+run the following when generating build files for `raplcap` inside `deneva-plus/raplcap/_build/`:
+
+    cmake .. -DBUILD_SHARED_LIBS=On -DCMAKE_BUILD_TYPE=Release
+
+If your target system exposes the `msr` registers in `/dev/cpu`, then you can build Deneva
+Plus against the MSR version of `raplcap` and skip installing `powercap`. You can do this
+by changing `RPLCAPTYPE` option in the Makefile from `powercap` to `msr` before building.
+While you can compile and link Deneva against a local build of `raplcap`, you may need to
+copy the `libraplcap-xxx.so` shared library to `/usr/lib` or `/usr/local/lib`. Note that
+energy measurements usually require additional privileges, so you may need to run target
+servers with `sudo` or `doas`.
 
 See `nanomsg` README on how to build it. You do not need to install it
 since Deneva searches for the shared object locally when building. However,
