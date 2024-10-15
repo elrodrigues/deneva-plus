@@ -19,8 +19,10 @@
 #include "stats.h"
 #include "mem_alloc.h"
 #include "client_txn.h"
+#include "raplcap.h"
 #include "work_queue.h"
 #include "stats_array.h"
+#include <cstdio>
 #include <time.h>
 #include <sys/times.h>
 //#include <sys/vtimes.h>
@@ -297,7 +299,7 @@ void Stats_thd::print_client(FILE * outf, bool prog) {
   double tput = 0;
   if(txn_cnt > 0)
     txn_run_avg_time = txn_run_time / txn_cnt;
-  if(total_runtime > 0) 
+  if(total_runtime > 0)
     tput = txn_cnt / (total_runtime / BILLION);
   fprintf(outf,
       "total_runtime=%f"
@@ -433,7 +435,7 @@ void Stats_thd::print(FILE * outf, bool prog) {
   double multi_part_txn_avg_time = 0;
   double single_part_txn_avg_time = 0;
   double avg_parts_touched = 0;
-  if(total_runtime > 0) 
+  if(total_runtime > 0)
     tput = txn_cnt / (total_runtime / BILLION);
   if(txn_cnt > 0) {
     txn_run_avg_time = txn_run_time / txn_cnt;
@@ -789,7 +791,7 @@ void Stats_thd::print(FILE * outf, bool prog) {
     ,twopl_wait_time / BILLION
     ,twopl_getlock_cnt
     ,twopl_getlock_time / BILLION
-    ,twopl_release_cnt 
+    ,twopl_release_cnt
     ,twopl_release_time / BILLION
   );
 
@@ -833,8 +835,8 @@ void Stats_thd::print(FILE * outf, bool prog) {
   ,seq_full_batch_cnt
   ,seq_ack_time /BILLION
   ,seq_batch_time /BILLION
-  ,seq_process_cnt 
-  ,seq_complete_cnt 
+  ,seq_process_cnt
+  ,seq_complete_cnt
   ,seq_process_time /BILLION
   ,seq_prep_time /BILLION
   ,seq_idle_time /BILLION
@@ -1427,7 +1429,7 @@ void Stats_thd::combine(Stats_thd * stats) {
 
 
 void Stats::init(uint64_t thread_cnt) {
-	if (!STATS_ENABLE) 
+	if (!STATS_ENABLE)
 		return;
 
   thd_cnt = thread_cnt;
@@ -1435,7 +1437,7 @@ void Stats::init(uint64_t thread_cnt) {
 	totals = new Stats_thd;
 
   for(uint64_t i = 0; i < thread_cnt; i++) {
-    _stats[i] = (Stats_thd *) 
+    _stats[i] = (Stats_thd *)
       mem_allocator.align_alloc(sizeof(Stats_thd));
     _stats[i]->init(i);
     _stats[i]->clear();
@@ -1444,9 +1446,27 @@ void Stats::init(uint64_t thread_cnt) {
   totals->init(0);
   totals->clear();
 
+  if (ENERGY_ENABLE) {
+    raplcap_init(&rc);
+
+    // typically want to measure Power Plane 0 (PP0)
+    // but will measure package for now.
+    nPackages = raplcap_get_num_packages(&rc);
+    energyInital = 0;
+    energyCnter = 0;
+    for (int n = 0; n < nPackages; n++) {
+        energyInital += raplcap_pd_get_energy_counter(&rc, n, 0, RAPLCAP_ZONE_PACKAGE);
+    }
+  }
 }
 
 void Stats::clear(uint64_t tid) {
+}
+
+Stats::~Stats() {
+    if (ENERGY_ENABLE) {
+        raplcap_destroy(&rc);
+    }
 }
 
 void Stats::print_client(bool prog) {
@@ -1460,9 +1480,9 @@ void Stats::print_client(bool prog) {
 
 
 	FILE * outf;
-	if (output_file != NULL) 
+	if (output_file != NULL)
 		outf = fopen(output_file, "w");
-  else 
+  else
     outf = stdout;
   if(prog)
 	  fprintf(outf, "[prog] ");
@@ -1489,7 +1509,7 @@ void Stats::print_client(bool prog) {
       if(_stats[tid]->all_lat.cnt > 0)
         max_idx = _stats[tid]->all_lat.cnt -1;
       _stats[tid]->all_lat.quicksort(0,_stats[tid]->all_lat.cnt-1);
-	    fprintf(outf, 
+	    fprintf(outf,
           ",lat_min=%ld"
           ",lat_max=%ld"
           ",lat_mean=%ld"
@@ -1543,13 +1563,15 @@ void Stats::print(bool prog) {
   fflush(stdout);
   if(!STATS_ENABLE)
     return;
-	
+
   totals->clear();
-  for(uint64_t i = 0; i < thd_cnt; i++) 
+  for(uint64_t i = 0; i < thd_cnt; i++) {
     totals->combine(_stats[i]);
-	FILE * outf;
-	if (output_file != NULL) 
-		outf = fopen(output_file, "w");
+  }
+
+  FILE * outf;
+  if (output_file != NULL)
+    outf = fopen(output_file, "w");
   else
     outf = stdout;
   if(prog)
@@ -1559,6 +1581,9 @@ void Stats::print(bool prog) {
   totals->print(outf,prog);
   mem_util(outf);
   cpu_util(outf);
+  if (ENERGY_ENABLE) {
+      energy_util(outf);
+  }
 
   fprintf(outf,"\n");
   fflush(outf);
@@ -1619,44 +1644,44 @@ void Stats::print_cnts(FILE * outf) {
    s_abrt_cnt += _stats[tid]->s_abrt.cnt;
   }
   printf("\n[all_abort %ld] ",all_abort_cnt);
-	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++) 
+	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++)
     _stats[tid]->all_abort.print(outf);
 #if WORKLOAD == TPCC
   printf("\n[w_cflt %ld] ",w_cflt_cnt);
-	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++) 
+	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++)
     _stats[tid]->w_cflt.print(outf);
   printf("\n[d_cflt %ld] ",d_cflt_cnt);
-	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++) 
+	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++)
     _stats[tid]->d_cflt.print(outf);
   printf("\n[cnp_cflt %ld] ",cnp_cflt_cnt);
-	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++) 
+	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++)
     _stats[tid]->cnp_cflt.print(outf);
   printf("\n[c_cflt %ld] ",c_cflt_cnt);
-	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++) 
+	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++)
     _stats[tid]->c_cflt.print(outf);
   printf("\n[ol_cflt %ld] ",ol_cflt_cnt);
-	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++) 
+	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++)
     _stats[tid]->ol_cflt.print(outf);
   printf("\n[s_cflt %ld] ",s_cflt_cnt);
-	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++) 
+	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++)
     _stats[tid]->s_cflt.print(outf);
   printf("\n[w_abrt %ld] ",w_abrt_cnt);
-	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++) 
+	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++)
     _stats[tid]->w_abrt.print(outf);
   printf("\n[d_abrt %ld] ",d_abrt_cnt);
-	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++) 
+	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++)
     _stats[tid]->d_abrt.print(outf);
   printf("\n[cnp_abrt %ld] ",cnp_abrt_cnt);
-	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++) 
+	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++)
     _stats[tid]->cnp_abrt.print(outf);
   printf("\n[c_abrt %ld] ",c_abrt_cnt);
-	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++) 
+	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++)
     _stats[tid]->c_abrt.print(outf);
   printf("\n[ol_abrt %ld] ",ol_abrt_cnt);
-	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++) 
+	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++)
     _stats[tid]->ol_abrt.print(outf);
   printf("\n[s_abrt %ld] ",s_abrt_cnt);
-	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++) 
+	for (UInt32 tid = 0; tid < g_thread_cnt; tid ++)
     _stats[tid]->s_abrt.print(outf);
 #endif
 
@@ -1673,7 +1698,7 @@ void Stats::print_lat_distr() {
     limit = g_thread_cnt;
   else
     limit = g_client_thread_cnt;
-	for (UInt32 tid = 0; tid < limit; tid ++) 
+	for (UInt32 tid = 0; tid < limit; tid ++)
     _stats[tid]->all_lat.print(stdout);
 #endif
 }
@@ -1760,4 +1785,19 @@ void Stats::cpu_util(FILE * outf) {
   lastUserCPU = timeSample.tms_utime;
 }
 
+void Stats::energy_util(FILE * outf) {
+    if (!ENERGY_ENABLE) {
+        return;
+    }
 
+    energyCnter=0;
+    for (int n = 0; n < nPackages; n++) {
+        energyCnter += raplcap_pd_get_energy_counter(&rc, n, 0, RAPLCAP_ZONE_PACKAGE);
+    }
+
+    double netEnergy = energyCnter - energyInital;
+    fprintf(outf,
+        ",energy_J=%f",
+        netEnergy
+    );
+}

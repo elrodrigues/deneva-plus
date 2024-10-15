@@ -4,3 +4,6 @@
 [submodule "nanomsg"]
 	path = nanomsg
 	url = https://github.com/nanomsg/nanomsg.git
+[submodule "raplcap"]
+	path = raplcap
+	url = https://github.com/powercap/raplcap.git
