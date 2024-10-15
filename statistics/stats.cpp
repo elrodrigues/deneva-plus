@@ -1455,11 +1455,8 @@ void Stats::init(uint64_t thread_cnt) {
     // typically want to measure Power Plane 0 (PP0)
     // but will measure package for now.
     nPackages = raplcap_get_num_packages(&rc);
-    energyInital = 0;
+    energyInital = raplcap_pd_get_energy_counter(&rc, 0, 0, RAPLCAP_ZONE_PACKAGE);;
     energyCnter = 0;
-    for (int n = 0; n < nPackages; n++) {
-        energyInital += raplcap_pd_get_energy_counter(&rc, n, 0, RAPLCAP_ZONE_PACKAGE);
-    }
   }
 }
 
@@ -1793,10 +1790,7 @@ void Stats::energy_util(FILE * outf) {
         return;
     }
 
-    energyCnter=0;
-    for (int n = 0; n < nPackages; n++) {
-        energyCnter += raplcap_pd_get_energy_counter(&rc, n, 0, RAPLCAP_ZONE_PACKAGE);
-    }
+    energyCnter=raplcap_pd_get_energy_counter(&rc, 0, 0, RAPLCAP_ZONE_PACKAGE);;
 
     double netEnergy = energyCnter - energyInital;
     fprintf(outf,
