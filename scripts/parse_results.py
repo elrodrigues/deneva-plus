@@ -56,13 +56,15 @@ print(names)
 s_avg = {}
 time_breakdown_total = 0
 
+s_avg['total_runtime'] = avg(summary['total_runtime'])
 for n in names:
     s_avg[n] = avg(summary[n])
-    if re.search('^time_',n):
-        time_breakdown_total += s_avg[n]
-        print("{}: {}".format(n,s_avg[n] / s_avg['run_time']))
+    if re.search('[_]*time',n):
+        if n.find("avg") < 0:
+            time_breakdown_total += s_avg[n]
+            print("{}: {}".format(n,s_avg[n] / s_avg['total_runtime']))
 
-print("% Runtime measured: {}".format(time_breakdown_total / s_avg['run_time']))
+print("% Runtime measured: {}".format(time_breakdown_total / s_avg['total_runtime']))
 print("Compute time / txn: {}".format( (s_avg['run_time'] - time_breakdown_total) / s_avg['txn_cnt']))
 print("Per-thread throughput: {}".format(s_avg['txn_cnt'] / s_avg['run_time']))
 print("Throughput w/o waiting: {}".format(s_avg['txn_cnt'] / (s_avg['run_time'] - s_avg['time_wait_lock'] - s_avg['time_wait_rem'])))
