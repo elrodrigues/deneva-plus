@@ -23,7 +23,7 @@ def get_summary(sfile):
             found = re.search("summary",line)
             line = line.rstrip('\n')
             if found:
-                line = line[10:] #remove '[summary] ' from start of line 
+                line = line[10:] #remove '[summary] ' from start of line
                 results = re.split(',',line)
                 process_results(results)
     return results
@@ -46,7 +46,7 @@ for arg in sys.argv[1:]:
         sys.exit("ERROR: File %s does not exist" % arg)
     get_summary(arg)
 
-names = summary.keys()
+names = list(summary.keys())
 
 names.sort()
 
