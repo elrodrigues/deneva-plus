@@ -71,7 +71,7 @@ print("Reported Throughput: {}".format(s_avg['tput']))
 print("Total Energy Consumed: {} J".format(s_avg['energy_J'] - 5000.))
 print("Efficiency: {} Transactions / J".format(s_avg['txn_cnt'] / (s_avg['energy_J'] - 5000.)))
 
-print("{},{},{}".format(s_avg['tput'], s_avg['energy_J'], s_avg['txn_cnt']/(s_avg['energy_J'] - 5000.)))
+print("{},{},{}".format(s_avg['tput'], s_avg['energy_J'] - 5000., s_avg['txn_cnt']/(s_avg['energy_J'] - 5000.)))
 # print("Throughput w/o waiting: {}".format(s_avg['txn_cnt'] / (s_avg['total_runtime'] - s_avg['time_wait_lock'] - s_avg['time_wait_rem'])))
 # print("% Remote measured: {}".format(( (0.000033 * s_avg['msg_sent'])+ s_avg['rtime_unpack'] + s_avg['rtime_proc']) / (s_avg['time_wait_lock'] + s_avg['time_wait_rem'])))
 # print(s_avg)
